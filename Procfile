@@ -1,0 +1,1 @@
+web: gunicorn doc_hub_backend.wsgi --log-file -
