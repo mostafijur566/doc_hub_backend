@@ -15,13 +15,13 @@ class AccountAdmin(UserAdmin):
     fieldsets = ()
 
 
-# class PatientAdmin(admin.ModelAdmin):
-#     list_display = ('doctor_id', 'name', 'age', 'weight', 'gender')
-#     search_fields = ('doctor_id', 'name')
-#
-#     filter_horizontal = ()
-#     list_filter = ()
-#     fieldsets = ()
+class PatientAdmin(admin.ModelAdmin):
+    list_display = ('doctor_id', 'name', 'age', 'weight', 'gender')
+    search_fields = ('doctor_id', 'name')
+
+    filter_horizontal = ()
+    list_filter = ()
+    fieldsets = ()
 
 
 admin.site.register(Account, AccountAdmin)
