@@ -18,6 +18,23 @@ def get_status(request):
     )
 
 
+class AccountView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = Account.objects.get(username=request.user)
+        serializer = RegistrationSerializers(user, many=False)
+
+        return Response(
+            {
+                "name": serializer.data['name'],
+                "email": serializer.data['email'],
+                "username": serializer.data['username']
+            }
+        )
+
+
+
 class RegistrationView(APIView):
     permission_classes = []
 
@@ -100,5 +117,16 @@ class PatientView(APIView):
         return Response(
             {
                 "message": "Patient data deleted!"
+            }
+        )
+
+    def get(self, request, pk):
+        patient = PatientDetails.objects.get(id=pk)
+        serializer = PatientSerializers(patient, many=False)
+
+        return Response(
+            {
+                "total_patients": PatientDetails.objects.count(),
+                "patients": serializer.data
             }
         )

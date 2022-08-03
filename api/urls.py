@@ -6,6 +6,7 @@ urlpatterns = [
     path('', get_status),
     path('api/v1/auth/register/', RegistrationView.as_view()),
     path('api/v1/auth/login/', obtain_auth_token),
+    path('api/v1/get-user/', AccountView.as_view()),
     path('api/v1/patient/', PatientView.as_view()),
     path('api/v1/patient/<str:pk>/', PatientView.as_view()),
 ]
