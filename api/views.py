@@ -34,7 +34,6 @@ class AccountView(APIView):
         )
 
 
-
 class RegistrationView(APIView):
     permission_classes = []
 
@@ -93,32 +92,6 @@ class PatientView(APIView):
             }
         )
 
-    def put(self, request, pk):
-        patient = PatientDetails.objects.get(id=pk)
-        serializer = PatientSerializers(patient, data=request.data)
-
-        if serializer.is_valid():
-            serializer.save()
-            data = {
-                "message": "Updated successfully!"
-            }
-
-        else:
-            data = {
-                "message": 400
-            }
-
-        return Response(serializer.data)
-
-    def delete(self, request, pk):
-        patient = PatientDetails.objects.get(id=pk)
-        patient.delete()
-
-        return Response(
-            {
-                "message": "Patient data deleted!"
-            }
-        )
 
 @api_view(['GET'])
 def getPatient(request, pk):
@@ -126,3 +99,34 @@ def getPatient(request, pk):
     serializer = PatientSerializers(patient, many=False)
 
     return Response(serializer.data)
+
+
+@api_view(['PUT'])
+def updatePatient(request, pk):
+    patient = PatientDetails.objects.get(id=pk)
+    serializer = PatientSerializers(patient, data=request.data)
+
+    if serializer.is_valid():
+        serializer.save()
+        data = {
+            "message": "Updated successfully!"
+        }
+
+    else:
+        data = {
+            "message": 400
+        }
+
+    return Response(serializer.data)
+
+
+@api_view(['DELETE'])
+def deletePatient(request, pk):
+    patient = PatientDetails.objects.get(id=pk)
+    patient.delete()
+
+    return Response(
+        {
+            "message": "Patient data deleted!"
+        }
+    )
