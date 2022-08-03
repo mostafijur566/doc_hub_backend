@@ -117,7 +117,7 @@ def updatePatient(request, pk):
             "message": 400
         }
 
-    return Response(serializer.data)
+    return Response(data)
 
 
 @api_view(['DELETE'])
