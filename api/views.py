@@ -125,9 +125,4 @@ def getPatient(request, pk):
     patient = PatientDetails.objects.get(id=pk)
     serializer = PatientSerializers(patient, many=False)
 
-    return Response(
-        {
-            "total_patients": PatientDetails.objects.count(),
-            "patients": serializer.data
-        }
-    )
+    return Response(serializer.data)
