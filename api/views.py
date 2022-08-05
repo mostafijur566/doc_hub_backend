@@ -82,7 +82,7 @@ class PatientView(APIView):
         return Response(data)
 
     def get(self, request):
-        patients = PatientDetails.objects.all()
+        patients = PatientDetails.objects.filter(doctor_id=request.user)
         serializer = PatientSerializers(patients, many=True)
 
         return Response(
