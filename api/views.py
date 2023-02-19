@@ -1,7 +1,14 @@
+from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
+from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.filters import SearchFilter
+
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
+
 from .serializers import *
 from rest_framework.authtoken.models import Token
 
@@ -59,6 +66,43 @@ class RegistrationView(APIView):
 
         return Response(data)
 
+class ChangePasswordView(generics.UpdateAPIView):
+    """
+    An endpoint for changing password.
+    """
+    serializer_class = ChangePasswordSerializer
+    model = Account
+    permission_classes = (IsAuthenticated,)
+
+    def get_object(self, queryset=None):
+        return self.request.user
+
+    def put(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        serializer = self.get_serializer(data=request.data)
+
+        if serializer.is_valid():
+            old_password = serializer.data.get("old_password")
+            new_password = serializer.data.get("new_password")
+            confirm_new_password = serializer.data.get("confirm_new_password")
+
+            if not self.object.check_password(old_password):
+                return Response({
+                    "message": "Wrong password"
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            if new_password != confirm_new_password:
+                return Response({
+                    "message": "New password do not match"}, status=status.HTTP_400_BAD_REQUEST)
+
+            self.object.set_password(new_password)
+            self.object.save()
+            update_session_auth_hash(request, self.object)  # Important!
+            return Response({"message": "Password updated successfully."}, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 
 class PatientView(APIView):
     permission_classes = [IsAuthenticated]
@@ -92,6 +136,32 @@ class PatientView(APIView):
             }
         )
 
+
+class PatientSearchView(ListAPIView):
+    queryset = PatientDetails.objects.all()
+    serializer_class = PatientSerializers
+    filter_backends = [SearchFilter]
+    search_fields = [
+        'name',
+        'age',
+        'weight',
+        'gender',
+        'medicine',
+        'disease',
+    ]
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        # Filter by doctor_id
+        queryset = queryset.filter(doctor_id=request.user)
+
+        serializer = self.get_serializer(queryset, many=True)
+        data = {
+            "total_patients": len(serializer.data),
+            "patients": serializer.data,
+        }
+        return Response(data)
 
 @api_view(['GET'])
 def getPatient(request, pk):
